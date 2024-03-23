@@ -7,7 +7,7 @@ use termion::raw::IntoRawMode;
 pub struct Editor {}
 
 impl Editor {
-    pub fn run(&mut self) {
+    pub fn run(self) {
         let _stdout = stdout().into_raw_mode().unwrap();
 
         for key in io::stdin().keys() {
