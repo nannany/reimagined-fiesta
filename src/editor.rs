@@ -4,34 +4,45 @@ use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
-pub struct Editor {}
+pub struct Editor {
+    should_quit: bool,
+}
 
 impl Editor {
-    pub fn run(&self) {
+    pub fn run(&mut self) {
         let _stdout = stdout().into_raw_mode().unwrap();
 
-        for key in io::stdin().keys() {
-            match key {
-                Ok(key) => match key {
-                    Key::Char(c) => {
-                        if c.is_control() {
-                            println!("{:?} \r", c as u8);
-                        } else {
-                            println!("{:?} ({})\r", c as u8, c);
-                        }
-                    }
-                    Key::Ctrl('q') => break,
-                    _ => println!("{:?}\r", key),
-                }
-                Err(err) => die(err),
+        loop {
+            if let Err(error) = self.process_keypress() {
+                die(error);
+            }
+            if self.should_quit {
+                break;
             }
         }
+
     }
     pub fn default() -> Self {
-        Self {}
+        Self {should_quit: false}
+    }
+
+    fn process_keypress(&mut self) -> Result<(), io::Error> {
+        let pressed_key = read_key()?;
+        match pressed_key {
+            Key::Ctrl('q') => self.should_quit = true,
+            _ => (),
+        }
+        Ok(())
     }
 }
 
+fn read_key() -> Result<Key, io::Error> {
+    loop {
+        if let Some(key) = io::stdin().lock().keys().next() {
+            return key;
+        }
+    }
+}
 
 fn die(e: io::Error) {
     panic!("{}", e);
