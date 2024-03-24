@@ -7,7 +7,7 @@ use termion::raw::IntoRawMode;
 pub struct Editor {}
 
 impl Editor {
-    pub fn run(self) {
+    pub fn run(&self) {
         let _stdout = stdout().into_raw_mode().unwrap();
 
         for key in io::stdin().keys() {
@@ -28,11 +28,11 @@ impl Editor {
         }
     }
     pub fn default() -> Self {
-        Editor {}
+        Self {}
     }
 }
 
 
-fn die(e: std::io::Error) {
+fn die(e: io::Error) {
     panic!("{}", e);
 }
